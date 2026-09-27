@@ -493,6 +493,30 @@ function soundGameOver(){
   setTimeout(()=>beep(250,300),200);
 }
 
+function soundToasty(){
+  if(!audioCtx||audioCtx.state!="running") return;
+  const notes=[
+    {frequency:523,start:0,duration:0.11},
+    {frequency:784,start:0.12,duration:0.11},
+    {frequency:1047,start:0.24,duration:0.14},
+    {frequency:1568,start:0.4,duration:0.24}
+  ];
+  notes.forEach(({frequency,start,duration})=>{
+    const oscillator=audioCtx.createOscillator();
+    const gain=audioCtx.createGain();
+    const noteStart=audioCtx.currentTime+start;
+    oscillator.type="square";
+    oscillator.frequency.value=frequency;
+    oscillator.connect(gain);
+    gain.connect(audioCtx.destination);
+    gain.gain.setValueAtTime(0.0001,noteStart);
+    gain.gain.linearRampToValueAtTime(0.06,noteStart+0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001,noteStart+duration);
+    oscillator.start(noteStart);
+    oscillator.stop(noteStart+duration);
+  });
+}
+
 function randomShape(){
   const keys=Object.keys(SHAPES);
   return keys[Math.floor(Math.random()*keys.length)];
@@ -633,6 +657,7 @@ function removeLines(){
 }
 
 function showToasty(){
+  soundToasty();
   clearTimeout(toastyTimeout);
   toastyPop.hidden=false;
   toastyPop.classList.remove("is-visible");
